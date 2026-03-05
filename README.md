@@ -153,9 +153,3 @@ http://localhost:3000
 - Rating system
 - Dark mode
 - Image optimization & CDN integration
-
----
-
-## 📄 License
-
-This project is developed for educational and academic purposes.
