@@ -98,16 +98,6 @@ The system centralizes scattered cat information into a single, structured, and 
 
 ---
 
-## 🔐 Environment Variables
-
-Create a `.env.local` file in the root directory:
-
-```
-MONGODB_URI=your_mongodb_connection_string
-JWT_SECRET=your_secret_key
-NEXT_PUBLIC_BASE_URL=http://localhost:3000
-```
-
 ## 🚀 Installation & Setup
 
 ### 1️⃣ Clone Repository
@@ -156,6 +146,6 @@ http://localhost:3000
 
 ---
 
-## 📄 License
+## Created By
 
-This project is developed for educational and academic purposes.
+1. **6510545276** – Kantapon Hemmadhun  
