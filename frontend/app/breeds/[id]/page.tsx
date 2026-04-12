@@ -19,15 +19,23 @@ const categoryColors: Record<string, string> = {
 };
 
 export default function BreedDetailPage() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = params?.id as string;
   const { token, isLoggedIn, isAdmin } = useAuth();
   const router = useRouter();
   const [breed, setBreed] = useState<Breed | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    apiFetch(`/breeds/${id}/`, {}, token).then(r => r.json()).then(d => { setBreed(d); setLoading(false); });
-  }, [id]);
+  if (!id) return; // ✅ prevent undefined call
+
+  apiFetch(`/breeds/${id}/`, {}, token)
+    .then(r => r.json())
+    .then(d => {
+      setBreed(d);
+      setLoading(false);
+    });
+}, [id]);
 
   const toggleFav = async () => {
     if (!isLoggedIn || !breed) return;
@@ -39,10 +47,12 @@ export default function BreedDetailPage() {
   };
 
   const handleDelete = async () => {
-    if (!confirm("Delete this breed?")) return;
-    await apiFetch(`/breeds/${id}/`, { method: "DELETE" }, token);
-    router.push("/breeds");
-  };
+  if (!id) return;
+  if (!confirm("Delete this breed?")) return;
+
+  await apiFetch(`/breeds/${id}/`, { method: "DELETE" }, token);
+  router.push("/breeds");
+};
 
   if (loading) return <div style={{ padding: "4rem", textAlign: "center", color: "var(--mocha)" }}>Loading…</div>;
   if (!breed) return <div style={{ padding: "4rem", textAlign: "center" }}>Breed not found.</div>;

@@ -36,7 +36,7 @@ def signup(request):
     tokens = get_tokens_for_user(user)
     return Response({
         "message": "Account created successfully.",
-        "user": {"id": user.id, "username": user.username, "email": user.email, "role": "user"},
+        "user": {"[id]": user.id, "username": user.username, "email": user.email, "role": "user"},
         **tokens,
     }, status=201)
 
@@ -60,7 +60,7 @@ def signin(request):
     return Response({
         "message": "Login successful.",
         "user": {
-            "id": user_obj.id,
+            "[id]": user_obj.id,
             "username": user_obj.username,
             "email": user_obj.email,
             "role": profile.role,
@@ -75,9 +75,9 @@ def profile(request):
     profile = get_object_or_404(UserProfile, user=request.user)
 
     if request.method == "GET":
-        favorites = [{"id": b.id, "name": b.name, "image": b.image.url if b.image else None} for b in profile.favorites.all()]
+        favorites = [{"[id]": b.id, "name": b.name, "image": b.image.url if b.image else None} for b in profile.favorites.all()]
         return Response({
-            "id": request.user.id,
+            "[id]": request.user.id,
             "username": request.user.username,
             "email": request.user.email,
             "bio": profile.bio,
@@ -129,7 +129,7 @@ def list_users(request):
     for u in users:
         p, _ = UserProfile.objects.get_or_create(user=u)
         data.append({
-            "id": u.id,
+            "[id]": u.id,
             "username": u.username,
             "email": u.email,
             "role": p.role,

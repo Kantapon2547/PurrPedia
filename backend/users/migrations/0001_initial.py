@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
             name="UserProfile",
             fields=[
                 (
-                    "id",
+                    "[id]",
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
