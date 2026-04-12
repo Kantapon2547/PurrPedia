@@ -81,7 +81,7 @@ export default function SubmitPage() {
         if (tags) fd.append("tags", tags);
       }
 
-      const res = await apiFormData("/submissions/", fd, token);
+      const res = await apiFormData("/submissions/create/", fd, token);
 
       if (!res.ok) {
         const d = await res.json();

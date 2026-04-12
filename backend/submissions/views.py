@@ -8,7 +8,7 @@ from breeds.models import Breed, CareTip
 from users.models import UserProfile
 
 
-# ✅ GET all submissions (admin only)
+# GET all submissions (admin only)
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def submissions_list(request):
@@ -21,7 +21,7 @@ def submissions_list(request):
 
     data = [
         {
-            "[id]": s.id,
+            "id": s.id,
             "title": s.title,
             "content": s.content,
             "submission_type": s.submission_type,
@@ -35,7 +35,7 @@ def submissions_list(request):
     return Response(data)
 
 
-# ✅ CREATE submission (user)
+# CREATE submission (JWT AUTH ONLY)
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def create_submission(request):
@@ -51,7 +51,7 @@ def create_submission(request):
     return Response({"message": "Submitted successfully"}, status=201)
 
 
-# ✅ REVIEW submission (ADMIN ONLY) 🔥 IMPORTANT
+# REVIEW submission (admin only)
 @api_view(["PATCH"])
 @permission_classes([IsAuthenticated])
 def review_submission(request, pk):
@@ -70,10 +70,8 @@ def review_submission(request, pk):
     submission.reviewed_by = request.user
     submission.save()
 
-    # 🔥🔥🔥 THIS IS THE KEY FIX 🔥🔥🔥
     if status_val == "approved":
 
-        # ✅ CREATE NEW BREED
         if submission.submission_type == "breed":
             if not Breed.objects.filter(name=submission.title).exists():
                 Breed.objects.create(
@@ -82,13 +80,11 @@ def review_submission(request, pk):
                     created_by=submission.submitted_by,
                 )
 
-        # ✅ EDIT EXISTING BREED
         elif submission.submission_type == "edit" and submission.related_breed:
             breed = submission.related_breed
             breed.description = submission.content
             breed.save()
 
-        # ✅ CREATE CARE TIP
         elif submission.submission_type == "care_tip":
             CareTip.objects.create(
                 title=submission.title,
