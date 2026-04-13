@@ -24,7 +24,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/users/", include("users.urls")),
     path("api/breeds/", include("breeds.urls")),
-    path("api/", include("submissions.urls")),
+    path("api/submissions/", include("submissions.urls")),
     # JWT AUTH
     path("api/token/", TokenObtainPairView.as_view()),
     path("api/token/refresh/", TokenRefreshView.as_view()),

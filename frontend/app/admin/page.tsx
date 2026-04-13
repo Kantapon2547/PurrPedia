@@ -1,6 +1,8 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "../context/AuthContext";
 import { apiFetch } from "../lib/api";
 
@@ -15,17 +17,17 @@ interface Submission {
 }
 
 export default function AdminPage() {
-  const { token, isAdmin, isLoggedIn, loading } = useAuth(); // ✅ auth loading
+  const { token, isAdmin, isLoggedIn, loading } = useAuth();
   const router = useRouter();
 
   const [submissions, setSubmissions] = useState<Submission[]>([]);
-  const [isFetching, setIsFetching] = useState(false); // ✅ renamed
+  const [isFetching, setIsFetching] = useState(false);
 
   const normalize = (data: any) =>
     Array.isArray(data) ? data : data?.results || [];
 
   useEffect(() => {
-    if (loading) return; // ✅ wait for auth
+    if (loading) return;
 
     if (!isLoggedIn) {
       router.push("/login");
@@ -46,6 +48,7 @@ export default function AdminPage() {
     if (!token) return;
 
     setIsFetching(true);
+
     try {
       const r = await apiFetch("/submissions/", {}, token);
       const data = await r.json();
@@ -53,6 +56,7 @@ export default function AdminPage() {
     } catch (err) {
       console.error(err);
     }
+
     setIsFetching(false);
   };
 
@@ -69,12 +73,11 @@ export default function AdminPage() {
       token
     );
 
-    setSubmissions((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, status } : s))
+    setSubmissions(prev =>
+      prev.map(s => (s.id === id ? { ...s, status } : s))
     );
   };
 
-  // ✅ DELETE FUNCTION
   const deleteSubmission = async (id: number) => {
     if (!confirm("Are you sure you want to delete this submission?")) return;
 
@@ -86,7 +89,7 @@ export default function AdminPage() {
       );
 
       if (res.ok) {
-        setSubmissions((prev) => prev.filter((s) => s.id !== id));
+        setSubmissions(prev => prev.filter(s => s.id !== id));
       } else {
         console.error("Delete failed:", res.status);
       }
@@ -95,14 +98,12 @@ export default function AdminPage() {
     }
   };
 
-  // 📊 Stats
   const total = submissions.length;
-  const pending = submissions.filter((s) => s.status === "pending").length;
-  const approved = submissions.filter((s) => s.status === "approved").length;
+  const pending = submissions.filter(s => s.status === "pending").length;
+  const approved = submissions.filter(s => s.status === "approved").length;
 
   return (
     <div style={{ background: "#f9fafb", minHeight: "100vh", padding: "2rem" }}>
-
       {/* HEADER */}
       <div style={{ marginBottom: "1.5rem" }}>
         <h1 style={{ fontSize: "1.8rem", fontWeight: 700 }}>
@@ -140,33 +141,27 @@ export default function AdminPage() {
           <p style={{ padding: "1rem" }}>Loading...</p>
         ) : (
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
-
-            {/* HEADER */}
             <thead style={{ background: "#f9fafb" }}>
               <tr>
-                {["Breed Name", "Submitted By", "Date", "Status", "Actions"].map(
-                  (h) => (
-                    <th
-                      key={h}
-                      style={{
-                        padding: "1rem",
-                        textAlign: "left",
-                        fontSize: "0.8rem",
-                        color: "#6b7280",
-                      }}
-                    >
-                      {h}
-                    </th>
-                  )
-                )}
+                {["Breed Name", "Submitted By", "Date", "Status", "Actions"].map(h => (
+                  <th
+                    key={h}
+                    style={{
+                      padding: "1rem",
+                      textAlign: "left",
+                      fontSize: "0.8rem",
+                      color: "#6b7280",
+                    }}
+                  >
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
 
-            {/* BODY */}
             <tbody>
-              {submissions.map((s) => (
+              {submissions.map(s => (
                 <tr key={s.id} style={{ borderTop: "1px solid #f1f5f9" }}>
-
                   <td style={tdStyle}>{s.title}</td>
                   <td style={tdStyle}>{s.submitted_by}</td>
                   <td style={tdStyle}>
@@ -179,36 +174,46 @@ export default function AdminPage() {
 
                   <td style={tdStyle}>
                     <div style={{ display: "flex", gap: "0.75rem" }}>
+                      {/* 👁️ VIEW */}
+                      <Link href={`/admin/submissions/${s.id}`}>
+                        <button style={iconBtn} title="View submission">
+                          👁️
+                        </button>
+                      </Link>
 
-                      <button style={iconBtn}>👁️</button>
-
+                      {/* ✔️ APPROVE / ❌ REJECT */}
                       {s.status === "pending" && (
                         <>
                           <button
-                            onClick={() =>
-                              reviewSubmission(s.id, "approved")
-                            }
+                            onClick={() => reviewSubmission(s.id, "approved")}
                             style={iconBtn}
+                            title="Approve"
                           >
                             ✔️
                           </button>
+
                           <button
-                            onClick={() =>
-                              reviewSubmission(s.id, "rejected")
-                            }
+                            onClick={() => reviewSubmission(s.id, "rejected")}
                             style={iconBtn}
+                            title="Reject"
                           >
                             ❌
                           </button>
                         </>
                       )}
 
-                      <button style={iconBtn}>✏️</button>
+                      {/* ✏️ EDIT */}
+                      <Link href={`/admin/submissions/${s.id}/edit`}>
+                        <button style={iconBtn} title="Edit submission">
+                          ✏️
+                        </button>
+                      </Link>
 
-                      {/* ✅ DELETE WORKING */}
+                      {/* 🗑️ DELETE */}
                       <button
                         onClick={() => deleteSubmission(s.id)}
                         style={{ ...iconBtn, color: "red" }}
+                        title="Delete"
                       >
                         🗑️
                       </button>
@@ -232,7 +237,7 @@ export default function AdminPage() {
   );
 }
 
-/* 🎨 Components */
+/* ================= COMPONENTS ================= */
 
 const StatCard = ({ title, value, color }: any) => (
   <div

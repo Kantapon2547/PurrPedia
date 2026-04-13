@@ -1,11 +1,18 @@
-# submissions/urls.py
 from django.urls import path
-from .views import create_submission, submissions_list, review_submission
 from . import views
 
 urlpatterns = [
-    path("submissions/", submissions_list), # GET all submissions (admin)
-    path("submissions/create/", create_submission), # POST new submission (USER)
-    path("submissions/<int:pk>/review/", review_submission), # PATCH review submission (admin)
-    path("submissions/<int:pk>/", views.delete_submission),
+    # GET all + POST create
+    path("", views.submissions_list),
+    path("create/", views.create_submission),
+
+    # DETAIL (GET one submission)
+    path("<int:pk>/", views.submission_detail),
+
+    # REVIEW
+    path("<int:pk>/review/", views.review_submission),
+
+    # DELETE
+    path("<int:pk>/delete/", views.delete_submission),
+    path("<int:pk>/edit/", views.edit_submission),
 ]

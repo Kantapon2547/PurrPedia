@@ -13,10 +13,6 @@ from users.models import UserProfile
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def submissions_list(request):
-    # 🔍 DEBUG HERE (put at the very top)
-    print("AUTH:", request.headers.get("Authorization"))
-    print("USER:", request.user)
-    print("AUTH OBJ:", request.auth)
     profile = get_object_or_404(UserProfile, user=request.user)
 
     if profile.role != "admin":
@@ -44,10 +40,6 @@ def submissions_list(request):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def create_submission(request):
-    # 🔍 DEBUG HERE (put at the very top)
-    print("AUTH:", request.headers.get("Authorization"))
-    print("USER:", request.user)
-    print("AUTH OBJ:", request.auth)
 
     # ✅ FIX: ensure tags is valid JSON list
     raw_tags = request.data.get("tags")
@@ -160,3 +152,49 @@ def delete_submission(request, pk):
 
     # ✅ FIX: 204 should not return body
     return Response(status=204)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def submission_detail(request, pk):
+    profile = get_object_or_404(UserProfile, user=request.user)
+
+    if profile.role != "admin":
+        return Response({"error": "Admin access required."}, status=403)
+
+    submission = get_object_or_404(Submission, pk=pk)
+
+    data = {
+        "id": submission.id,
+        "title": submission.title,
+        "content": submission.content,
+        "submission_type": submission.submission_type,
+        "status": submission.status,
+        "submitted_by": submission.submitted_by.username,
+        "created_at": submission.created_at,
+        "origin": submission.origin,
+        "temperament": submission.temperament,
+        "lifespan": submission.lifespan,
+        "weight": submission.weight,
+        "coat_length": submission.coat_length,
+        "hypoallergenic": submission.hypoallergenic,
+        "tags": submission.tags,
+        "image": submission.image.url if submission.image else None,
+    }
+
+    return Response(data)
+
+@api_view(["PATCH"])
+def edit_submission(request, pk):
+    submission = get_object_or_404(Submission, pk=pk)
+
+    for field in [
+        "title", "content", "submission_type",
+        "origin", "temperament", "lifespan",
+        "weight", "coat_length", "hypoallergenic", "tags"
+    ]:
+        if field in request.data:
+            setattr(submission, field, request.data[field])
+
+    submission.save()
+    return Response({"message": "updated"})
