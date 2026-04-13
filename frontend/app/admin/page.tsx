@@ -15,45 +15,45 @@ interface Submission {
 }
 
 export default function AdminPage() {
-  const { token, isAdmin, isLoggedIn } = useAuth();
+  const { token, isAdmin, isLoggedIn, loading } = useAuth(); // ✅ auth loading
   const router = useRouter();
 
   const [submissions, setSubmissions] = useState<Submission[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false); // ✅ renamed
 
-  // ✅ Normalize API response
   const normalize = (data: any) =>
     Array.isArray(data) ? data : data?.results || [];
 
   useEffect(() => {
-  if (!isLoggedIn) {
-    router.push("/login");
-    return;
-  }
+    if (loading) return; // ✅ wait for auth
 
-  if (!isAdmin) {
-    router.push("/dashboard");
-    return;
-  }
+    if (!isLoggedIn) {
+      router.push("/login");
+      return;
+    }
 
-  if (!token) return; // ✅ IMPORTANT FIX
+    if (!isAdmin) {
+      router.push("/dashboard");
+      return;
+    }
 
-  loadData();
-}, [isAdmin, isLoggedIn, token]);
+    if (!token) return;
+
+    loadData();
+  }, [isAdmin, isLoggedIn, token, loading]);
 
   const loadData = async () => {
-    if (!token) return; // ✅ extra safety
-    console.log("TOKEN USED:", token); // 👈 debug
-    setLoading(true);
+    if (!token) return;
+
+    setIsFetching(true);
     try {
       const r = await apiFetch("/submissions/", {}, token);
       const data = await r.json();
-      console.log("DATA:", data); // 👈 debug
       setSubmissions(normalize(data));
     } catch (err) {
       console.error(err);
     }
-    setLoading(false);
+    setIsFetching(false);
   };
 
   const reviewSubmission = async (
@@ -72,6 +72,27 @@ export default function AdminPage() {
     setSubmissions((prev) =>
       prev.map((s) => (s.id === id ? { ...s, status } : s))
     );
+  };
+
+  // ✅ DELETE FUNCTION
+  const deleteSubmission = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this submission?")) return;
+
+    try {
+      const res = await apiFetch(
+        `/submissions/${id}/`,
+        { method: "DELETE" },
+        token
+      );
+
+      if (res.ok) {
+        setSubmissions((prev) => prev.filter((s) => s.id !== id));
+      } else {
+        console.error("Delete failed:", res.status);
+      }
+    } catch (err) {
+      console.error("Delete error:", err);
+    }
   };
 
   // 📊 Stats
@@ -115,7 +136,7 @@ export default function AdminPage() {
           overflow: "hidden",
         }}
       >
-        {loading ? (
+        {isFetching ? (
           <p style={{ padding: "1rem" }}>Loading...</p>
         ) : (
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -183,7 +204,14 @@ export default function AdminPage() {
                       )}
 
                       <button style={iconBtn}>✏️</button>
-                      <button style={{ ...iconBtn, color: "red" }}>🗑️</button>
+
+                      {/* ✅ DELETE WORKING */}
+                      <button
+                        onClick={() => deleteSubmission(s.id)}
+                        style={{ ...iconBtn, color: "red" }}
+                      >
+                        🗑️
+                      </button>
                     </div>
                   </td>
                 </tr>

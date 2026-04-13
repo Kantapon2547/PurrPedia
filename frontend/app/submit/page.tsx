@@ -10,7 +10,7 @@ interface Breed {
 }
 
 export default function SubmitPage() {
-  const { token, isLoggedIn } = useAuth();
+  const { token, isLoggedIn, loading: authLoading } = useAuth();
   const router = useRouter();
 
   const [breeds, setBreeds] = useState<Breed[]>([]);
@@ -31,22 +31,25 @@ export default function SubmitPage() {
   const [hypoallergenic, setHypoallergenic] = useState(false);
   const [tags, setTags] = useState("");
 
-  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (authLoading) return; // ✅ wait for auth restore
+
     if (!isLoggedIn) {
       router.push("/login");
       return;
     }
-    if (!token) return;
+
     loadBreeds();
-  }, [isLoggedIn, token]);
+  }, [token, authLoading]);
 
   const loadBreeds = async () => {
     try {
       const r = await apiFetch("/breeds/", {}, token);
+      if (!r.ok) return;
       const data = await r.json();
       setBreeds(Array.isArray(data) ? data : data.results || []);
     } catch (err) {
@@ -56,10 +59,13 @@ export default function SubmitPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!token) return;
+    if (!token) {
+    setError("Not authenticated yet. Please wait.");
+    return;
+    }
 
     setError("");
-    setLoading(true);
+    setSubmitting(true);
 
     try {
       const fd = new FormData();
@@ -99,7 +105,7 @@ export default function SubmitPage() {
     } catch {
       setError("Unable to connect.");
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   }
 
@@ -229,8 +235,8 @@ export default function SubmitPage() {
               onChange={e => setImage(e.target.files?.[0] || null)} />
           </div>
 
-          <button className="btn-primary" disabled={loading}>
-            {loading ? "Submitting..." : "Submit →"}
+          <button className="btn-primary" disabled={submitting}>
+            {submitting ? "Submitting..." : "Submit →"}
           </button>
 
         </form>

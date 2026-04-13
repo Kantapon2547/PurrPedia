@@ -1,12 +1,21 @@
 const BASE = "http://127.0.0.1:8000/api";
 
-export async function apiFetch(path: string, options: RequestInit = {}, token?: string | null) {
+/**
+ * Safe API fetch (JSON)
+ */
+export async function apiFetch(
+  path: string,
+  options: RequestInit = {},
+  token?: string | null
+) {
   const headers: Record<string, string> = {
     ...(options.headers as Record<string, string> || {}),
   };
 
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
+  const accessToken = token || localStorage.getItem("pp_token");
+
+  if (accessToken) {
+    headers["Authorization"] = `Bearer ${accessToken}`;
   }
 
   if (!headers["Content-Type"]) {
@@ -19,17 +28,26 @@ export async function apiFetch(path: string, options: RequestInit = {}, token?: 
   });
 }
 
-export async function apiFormData(path: string, formData: FormData, token?: string | null, method = "POST") {
+/**
+ * Safe FormData API
+ */
+export async function apiFormData(
+  path: string,
+  formData: FormData,
+  token?: string | null,
+  method = "POST"
+) {
   const headers: Record<string, string> = {};
 
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
+  const accessToken = token || localStorage.getItem("pp_token");
+
+  if (accessToken) {
+    headers["Authorization"] = `Bearer ${accessToken}`;
   }
 
   return fetch(`${BASE}${path}`, {
     method,
     headers,
     body: formData,
-    credentials: "omit", // 🔥 IMPORTANT (prevents old session cookies)
   });
 }

@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
             name="Breed",
             fields=[
                 (
-                    "[id]",
+                    "id",
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
@@ -69,7 +69,7 @@ class Migration(migrations.Migration):
             name="CareTip",
             fields=[
                 (
-                    "[id]",
+                    "id",
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
