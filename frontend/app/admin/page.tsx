@@ -45,10 +45,7 @@ export default function AdminPage() {
   }, [isAdmin, isLoggedIn, token, loading]);
 
   const loadData = async () => {
-    if (!token) return;
-
     setIsFetching(true);
-
     try {
       const r = await apiFetch("/submissions/", {}, token);
       const data = await r.json();
@@ -56,7 +53,6 @@ export default function AdminPage() {
     } catch (err) {
       console.error(err);
     }
-
     setIsFetching(false);
   };
 
@@ -103,135 +99,159 @@ export default function AdminPage() {
   const approved = submissions.filter(s => s.status === "approved").length;
 
   return (
-    <div style={{ background: "#f9fafb", minHeight: "100vh", padding: "2rem" }}>
-      {/* HEADER */}
-      <div style={{ marginBottom: "1.5rem" }}>
-        <h1 style={{ fontSize: "1.8rem", fontWeight: 700 }}>
-          Admin Dashboard
-        </h1>
-        <p style={{ color: "#6b7280" }}>
-          Manage cat breed submissions and content.
-        </p>
-      </div>
+    <div style={{ background: "var(--cream)", minHeight: "100vh", padding: "2rem 1.5rem" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
 
-      {/* STATS */}
-      <div
-        style={{
+        {/* HEADER */}
+        <div style={{ marginBottom: "2rem" }}>
+          <h1 style={{
+            fontFamily: "'Playfair Display', serif",
+            fontSize: "2rem",
+            color: "var(--espresso)",
+            marginBottom: "0.25rem"
+          }}>
+            Admin Dashboard
+          </h1>
+
+          <p style={{
+            color: "var(--mocha)",
+            opacity: 0.6,
+            fontSize: "0.9rem"
+          }}>
+            Manage cat breed submissions and content.
+          </p>
+        </div>
+
+        {/* STATS */}
+        <div style={{
           display: "grid",
           gridTemplateColumns: "repeat(3, 1fr)",
-          gap: "1.5rem",
+          gap: "1rem",
           marginBottom: "2rem",
-        }}
-      >
-        <StatCard title="Total Submissions" value={total} color="#f97316" />
-        <StatCard title="Pending Review" value={pending} color="#f59e0b" />
-        <StatCard title="Approved" value={approved} color="#16a34a" />
-      </div>
+        }}>
+          {[
+            { label: "Total Submissions", value: total, color: "var(--terracotta)" },
+            { label: "Pending Review", value: pending, color: "#d97706" },
+            { label: "Approved", value: approved, color: "#16a34a" },
+          ].map(({ label, value, color }) => (
+            <div key={label} style={{
+              background: "var(--card-bg)",
+              border: "1px solid var(--border)",
+              borderRadius: 4,
+              padding: "1.25rem 1.5rem"
+            }}>
+              <p style={{
+                fontSize: "0.78rem",
+                color: "var(--mocha)",
+                opacity: 0.6,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                marginBottom: "0.4rem"
+              }}>
+                {label}
+              </p>
+              <h2 style={{ color, fontSize: "2rem", fontWeight: 700 }}>
+                {value}
+              </h2>
+            </div>
+          ))}
+        </div>
 
-      {/* TABLE */}
-      <div
-        style={{
-          background: "white",
-          borderRadius: 12,
-          border: "1px solid #e5e7eb",
-          overflow: "hidden",
-        }}
-      >
-        {isFetching ? (
-          <p style={{ padding: "1rem" }}>Loading...</p>
-        ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead style={{ background: "#f9fafb" }}>
-              <tr>
-                {["Breed Name", "Submitted By", "Date", "Status", "Actions"].map(h => (
-                  <th
-                    key={h}
-                    style={{
-                      padding: "1rem",
+        {/* TABLE */}
+        <div style={{
+          background: "var(--card-bg)",
+          border: "1px solid var(--border)",
+          borderRadius: 4,
+          overflow: "hidden"
+        }}>
+          {isFetching ? (
+            <p style={{ padding: "2rem", textAlign: "center", color: "var(--mocha)", opacity: 0.5 }}>
+              Loading…
+            </p>
+          ) : (
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ background: "var(--espresso)" }}>
+                  {["Breed Name", "Submitted By", "Date", "Status", "Actions"].map(h => (
+                    <th key={h} style={{
+                      padding: "0.85rem 1rem",
                       textAlign: "left",
-                      fontSize: "0.8rem",
-                      color: "#6b7280",
-                    }}
-                  >
-                    {h}
-                  </th>
+                      fontSize: "0.72rem",
+                      color: "rgba(255,255,255,0.6)",
+                      fontWeight: 600,
+                      letterSpacing: "0.06em",
+                      textTransform: "uppercase"
+                    }}>
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+
+              <tbody>
+                {submissions.map(s => (
+                  <tr key={s.id} style={{ borderTop: "1px solid var(--border)" }}>
+                    <td style={tdStyleTitle}>{s.title}</td>
+                    <td style={tdStyle}>{s.submitted_by}</td>
+                    <td style={tdStyle}>
+                      {new Date(s.created_at).toLocaleDateString()}
+                    </td>
+
+                    <td style={tdStyle}>
+                      <StatusBadge status={s.status} />
+                    </td>
+
+                    <td style={tdStyle}>
+                      <div style={{ display: "flex", gap: "0.5rem" }}>
+
+                        {/* 👁 VIEW */}
+                        <Link href={`/admin/submissions/${s.id}`} style={{ textDecoration: "none" }}>
+                          <span>
+                            <ActionBtn color="#2563eb" title="View">👁</ActionBtn>
+                          </span>
+                        </Link>
+
+                        {/* ✏️ EDIT */}
+                        <Link href={`/admin/submissions/${s.id}/edit`} style={{ textDecoration: "none" }}>
+                          <span>
+                            <ActionBtn color="#7c3aed" title="Edit">✏️</ActionBtn>
+                          </span>
+                        </Link>
+
+                        {/* ✔️ APPROVE / ❌ REJECT */}
+                        {s.status === "pending" && (
+                          <>
+                            <ActionBtn onClick={() => reviewSubmission(s.id, "approved")} color="#16a34a" title="Approve">
+                              ✔
+                            </ActionBtn>
+
+                            <ActionBtn onClick={() => reviewSubmission(s.id, "rejected")} color="#dc2626" title="Reject">
+                              ✕
+                            </ActionBtn>
+                          </>
+                        )}
+
+                        {/* 🗑 DELETE */}
+                        <ActionBtn onClick={() => deleteSubmission(s.id)} color="#dc2626" title="Delete">
+                          🗑
+                        </ActionBtn>
+
+                      </div>
+                    </td>
+                  </tr>
                 ))}
-              </tr>
-            </thead>
 
-            <tbody>
-              {submissions.map(s => (
-                <tr key={s.id} style={{ borderTop: "1px solid #f1f5f9" }}>
-                  <td style={tdStyle}>{s.title}</td>
-                  <td style={tdStyle}>{s.submitted_by}</td>
-                  <td style={tdStyle}>
-                    {new Date(s.created_at).toLocaleDateString()}
-                  </td>
-
-                  <td style={tdStyle}>
-                    <StatusBadge status={s.status} />
-                  </td>
-
-                  <td style={tdStyle}>
-                    <div style={{ display: "flex", gap: "0.75rem" }}>
-                      {/* 👁️ VIEW */}
-                      <Link href={`/admin/submissions/${s.id}`}>
-                        <button style={iconBtn} title="View submission">
-                          👁️
-                        </button>
-                      </Link>
-
-                      {/* ✔️ APPROVE / ❌ REJECT */}
-                      {s.status === "pending" && (
-                        <>
-                          <button
-                            onClick={() => reviewSubmission(s.id, "approved")}
-                            style={iconBtn}
-                            title="Approve"
-                          >
-                            ✔️
-                          </button>
-
-                          <button
-                            onClick={() => reviewSubmission(s.id, "rejected")}
-                            style={iconBtn}
-                            title="Reject"
-                          >
-                            ❌
-                          </button>
-                        </>
-                      )}
-
-                      {/* ✏️ EDIT */}
-                      <Link href={`/admin/submissions/${s.id}/edit`}>
-                        <button style={iconBtn} title="Edit submission">
-                          ✏️
-                        </button>
-                      </Link>
-
-                      {/* 🗑️ DELETE */}
-                      <button
-                        onClick={() => deleteSubmission(s.id)}
-                        style={{ ...iconBtn, color: "red" }}
-                        title="Delete"
-                      >
-                        🗑️
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-
-              {submissions.length === 0 && (
-                <tr>
-                  <td colSpan={5} style={{ padding: "1rem", textAlign: "center" }}>
-                    No submissions found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        )}
+                {submissions.length === 0 && (
+                  <tr>
+                    <td colSpan={5} style={{ padding: "3rem", textAlign: "center", color: "var(--mocha)", opacity: 0.4 }}>
+                      No submissions found.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -239,52 +259,59 @@ export default function AdminPage() {
 
 /* ================= COMPONENTS ================= */
 
-const StatCard = ({ title, value, color }: any) => (
-  <div
+const tdStyle = {
+  padding: "0.9rem 1rem",
+  fontSize: "0.875rem",
+  color: "var(--mocha)",
+};
+
+const tdStyleTitle = {
+  ...tdStyle,
+  color: "var(--espresso)",
+  fontWeight: 500,
+};
+
+const ActionBtn = ({ onClick, color, title, children }: any) => (
+  <button
+    onClick={onClick}
+    title={title}
     style={{
-      background: "white",
-      padding: "1.5rem",
-      borderRadius: 12,
-      border: "1px solid #e5e7eb",
+      width: 30,
+      height: 30,
+      border: `1px solid ${color}22`,
+      borderRadius: 3,
+      background: `${color}11`,
+      color,
+      cursor: "pointer",
+      fontSize: "0.8rem",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
     }}
   >
-    <p style={{ fontSize: "0.85rem", color: "#6b7280" }}>{title}</p>
-    <h2 style={{ color, fontSize: "1.8rem", fontWeight: 700 }}>{value}</h2>
-  </div>
+    {children}
+  </button>
 );
 
 const StatusBadge = ({ status }: { status: string }) => {
-  const styles: any = {
+  const map: Record<string, { bg: string; color: string }> = {
     pending: { bg: "#fef3c7", color: "#d97706" },
     approved: { bg: "#dcfce7", color: "#16a34a" },
     rejected: { bg: "#fee2e2", color: "#dc2626" },
   };
 
+  const s = map[status] || { bg: "#f3f4f6", color: "#6b7280" };
+
   return (
-    <span
-      style={{
-        padding: "0.25rem 0.7rem",
-        borderRadius: 999,
-        fontSize: "0.75rem",
-        fontWeight: 600,
-        background: styles[status]?.bg,
-        color: styles[status]?.color,
-      }}
-    >
+    <span style={{
+      padding: "3px 10px",
+      borderRadius: 999,
+      fontSize: "0.72rem",
+      fontWeight: 600,
+      background: s.bg,
+      color: s.color
+    }}>
       {status}
     </span>
   );
-};
-
-const tdStyle = {
-  padding: "1rem",
-  fontSize: "0.9rem",
-  color: "#374151",
-};
-
-const iconBtn = {
-  border: "none",
-  background: "transparent",
-  cursor: "pointer",
-  fontSize: "1rem",
 };

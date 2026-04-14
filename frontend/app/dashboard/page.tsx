@@ -21,12 +21,6 @@ const FEATURES = [
   },
 ];
 
-const STATS = [
-  { label: "Cat Breeds", value: "100+" },
-  { label: "Care Articles", value: "500+" },
-  { label: "Contributors", value: "2k+" },
-];
-
 const styles = {
   hero: {
     minHeight: "88vh",
@@ -34,8 +28,12 @@ const styles = {
     alignItems: "center",
     position: "relative" as const,
     overflow: "hidden",
-    background:
-      "linear-gradient(135deg, var(--espresso) 0%, var(--mocha) 60%, #5a3a28 100%)",
+    backgroundImage: `
+      linear-gradient(rgba(59,47,47,0.85), rgba(59,47,47,0.85)),
+      url("/images/hero-cat.jpg")
+    `,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
   },
   container: {
     maxWidth: 1200,
@@ -133,40 +131,6 @@ export default function Dashboard() {
               )}
             </div>
 
-            <div
-              style={{
-                display: "flex",
-                gap: "2.5rem",
-                marginTop: "3.5rem",
-                paddingTop: "2rem",
-                borderTop: "1px solid rgba(255,255,255,0.1)",
-                flexWrap: "wrap",
-              }}
-            >
-              {STATS.map((s) => (
-                <div key={s.label}>
-                  <div
-                    style={{
-                      fontFamily: "'Playfair Display', serif",
-                      fontSize: "1.8rem",
-                      fontWeight: 700,
-                      color: "var(--amber-light)",
-                    }}
-                  >
-                    {s.value}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "0.78rem",
-                      color: "rgba(255,255,255,0.5)",
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    {s.label}
-                  </div>
-                </div>
-              ))}
-            </div>
           </header>
         </div>
       </section>
@@ -209,7 +173,7 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* ================= KNOWLEDGE CTA ================= */}
+      {/* ================= CTA ================= */}
       <section
         style={{
           padding: "5rem 1.5rem",
