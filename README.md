@@ -201,14 +201,11 @@ http://localhost:3000
 
 ---
 
-## 📈 System Workflow
-
-- Guest visits platform and views public content
-- User registers or logs in
-- User browses or submits content
-- Submissions are stored as Pending
-- Admin reviews submissions
-- Approved content becomes publicly available
+## ❌ Out of Scope 
+- AI-based image recognition 
+- Online pet adoption system 
+- E-commerce payment integration 
+- Veterinary medical diagnosis system
 
 ---
 
