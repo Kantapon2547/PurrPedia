@@ -8,13 +8,26 @@ The system centralizes scattered cat information into a single, structured, and 
 
 ---
 
-## 🎯 Objectives
+## 🏗 System Architecture Overview
 
-- Develop a centralized platform for cat-related knowledge
-- Enable structured Wikipedia-style user contributions
-- Provide personalized content recommendations
-- Implement role-based access control (RBAC)
-- Support full CRUD operations for cat-related content
+**Architectural Style:** Layered Client–Server Architecture  
+**Backend Design:** Modular Monolith (REST API)
+
+### 🔹 Architecture Summary
+- **Frontend (Client):** Next.js handles UI and user interaction  
+- **Backend (Server):** Django + Django REST Framework handles business logic and data  
+- **Communication:** REST API over HTTP (JSON + JWT authentication)  
+
+### 🔹 Backend Modules
+- `users` → authentication, profiles, roles  
+- `breeds` → breed data and care tips  
+- `submissions` → contribution workflow  
+
+### 🔹 Layered Structure
+- **Presentation Layer** → Frontend UI (Next.js)  
+- **API Layer** → Django views (HTTP handling)  
+- **Business Logic Layer** → services.py  
+- **Data Layer** → Django ORM + SQLite  
 
 ---
 
@@ -81,20 +94,22 @@ The system centralizes scattered cat information into a single, structured, and 
 ## 🛠 Technology Stack
 
 ### Frontend
-- HTML
-- CSS
-- JavaScript
-- Next.js (React Framework)
+- Next.js 14 (React)
+- TypeScript
+- CSS (custom styling)
+- React Context API (AuthContext)
 
 ### Backend
-- Node.js
-- Next.js API Routes
+- Django 5
+- Django REST Framework (DRF)
+- Function-based API views
 
 ### Database
-- MongoDB
+- SQLite (development)
+- Designed for PostgreSQL migration
 
 ### Authentication
-- JSON Web Token (JWT)
+- JSON Web Token (JWT) via `djangorestframework-simplejwt`
 
 ---
 
@@ -107,45 +122,96 @@ git clone https://github.com/your-username/purrpedia.git
 cd purrpedia
 ```
 
-### 2️⃣ Install Dependencies
+### 2️⃣ Backend Setup (Django)
 
 ```bash
-npm install
+cd backend
+python -m venv venv
+venv\Scripts\activate   # Windows
+# source venv/bin/activate  # macOS/Linux
+
+pip install -r requirements.txt
 ```
 
-### 3️⃣ Run Development Server
+Run migrations:
+
+```bash
+python manage.py migrate
+```
+
+Create admin account:
+
+```bash
+python manage.py createsuperuser
+```
+
+Run Backend:
+
+```bash
+python manage.py runserver
+```
+
+Backend runs at: http://127.0.0.1:8000
+
+### 3️⃣ Frontend Setup (Next.js)
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Frontend runs at: http://localhost:3000
+
+
+---
+
+## ▶️ How to Run the System
+
+1. Start backend server:
+
+```bash
+python manage.py runserver
+```
+
+2. Start frontend:
 
 ```bash
 npm run dev
 ```
 
-Open in browser:
+3. Open browser:
 
-```
+```bash
 http://localhost:3000
 ```
+4. Register or log in
+
+5. Use admin account for moderation features
 
 ---
 
-## ❌ Out of Scope
+## 📸 Screenshots
 
-- AI-based image recognition
-- Online pet adoption system
-- E-commerce payment integration
-- Veterinary medical diagnosis system
+![](screenshots/img.png)
 
----
+![](screenshots/img_1.png)
 
-## 📌 Future Improvements
-
-- Advanced filtering & search
-- Commenting system
-- Rating system
-- Dark mode
-- Image optimization & CDN integration
+![](screenshots/img_6.png)
 
 ---
 
-## Created By
+## 📈 System Workflow
 
-1. **6510545276** – Kantapon Hemmadhun  
+- Guest visits platform and views public content
+- User registers or logs in
+- User browses or submits content
+- Submissions are stored as Pending
+- Admin reviews submissions
+- Approved content becomes publicly available
+
+---
+
+## 👤 Created By
+
+**6510545276** – Kantapon Hemmadhun  
